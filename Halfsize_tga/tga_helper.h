@@ -35,6 +35,8 @@
 // Declarations and Macro Defintions
 //============================================================================
 
+#define TGA_DEBUG 1
+
 // Macro definitions for image types.
 #define TGA_NULL				0							// Null
 #define TGA_MAP					1							// For future extension to support color Map format

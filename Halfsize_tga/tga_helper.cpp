@@ -21,8 +21,6 @@
 //============================================================================
 #include "tga_helper.h"
 
-#define TGA_DEBUG 1
-
 using namespace std;
 
 char imgTypeStr[16][16] = { "NULL", "MAP", "RGB", "MONO", "4", "5", "6", "7", "8",
