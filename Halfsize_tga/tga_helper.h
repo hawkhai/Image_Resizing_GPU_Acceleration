@@ -44,6 +44,21 @@
 #define TGA_RLERGB				10							// For future extension to support RLE
 #define TGA_RLEMONO				11							// For future extension to support RLE
 
+#define TGA_IDLENGTH			(uint8_t)0
+#define TGA_COLORMAPTYPE		(uint8_t)1
+#define TGA_TYPE				(uint8_t)2
+#define TGA_COLORMAPINDEX		(uint8_t)3
+#define TGA_COLORMAPLENGTH		(uint8_t)5
+#define TGA_COLORMAPSIZE		(uint8_t)7
+#define TGA_XORIGIN				(uint8_t)8
+#define TGA_YORIGIN				(uint8_t)10
+#define TGA_WIDTH				(uint8_t)12
+#define TGA_HEIGHT				(uint8_t)14
+#define TGA_PIXELSIZE			(uint8_t)16
+#define TGA_DESC				(uint8_t)17
+
+#define TGA_HEADER_LENGTH		(uint8_t)18
+
 // Macro definitions of masks for the desscriptor
 #define TGA_DESC_ALPHA_MASK		((uint8_t)0xF)				// number of alpha channel bits
 #define TGA_DESC_ORG_MASK		((uint8_t)0x30)				// origin mask
@@ -77,23 +92,25 @@ typedef struct tgaHeader_
 struct TGA {
 
 	// By default all kept public
-	// Memebr Variables
-	tgaHeader mHeader;
-	uint32_t mPixelDataLen;
-	std::vector<uint8_t> mID;
-	std::vector<uint8_t> mPixelData;
+	// Member Variables
+	tgaHeader				mHeader;
+	uint32_t				mPixelDataLen;
+	std::vector<uint8_t>	mID;
+	std::vector<uint8_t>	mColorMapSpec;
+	std::vector<uint8_t>	mPixelData;
 
-	// Constructor
-    TGA(const char *fname) {
-        read(fname);
+	// Default Constructor
+	TGA() {
+		mHeader = {0};
+		mPixelDataLen = 0;
 	}
 
-	// Constructor
-	TGA(tgaHeader mheader, std::vector<uint8_t> mID, std::vector<uint8_t> mPixelData, const char *fname ) {
-		write(mheader, mID, mPixelData, fname);
+	// Parameterised Constructor
+    TGA(const char *imgName) {
+        read(imgName);
 	}
 
 	// Member functions
-	void read(const char *fname);
-	void write(tgaHeader mheader, std::vector<uint8_t> mID, std::vector<uint8_t> mPixelData, const char *fname);
+	void read(const char *imgName);
+	bool write(const char *imgName);
 };

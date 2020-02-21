@@ -14,38 +14,11 @@ cl::CommandQueue que;
 cl::Device device;
 std::vector<cl::Platform> platforms;
 
-//unsigned char* readTGA(char* filename)
-//{
-//
-//	FILE* img = fopen(filename, "rb");
-//	unsigned char info[54];
-//	fread(info, sizeof(unsigned char), 54, img); // read the 54-byte header
-//
-//											   // extract image height and width from header
-//	int width = *(int*)&info[18];
-//	int height = *(int*)&info[22];
-//
-//	int size = 3 * width * height;
-//	unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
-//	fread(data, sizeof(unsigned char), size, img); // read the rest of the data at once
-//	fclose(img);
-//
-//	for (int i = 0; i < size; i += 3)
-//	{
-//		unsigned char tmp = data[i];
-//		data[i] = data[i + 2];
-//		data[i + 2] = tmp;
-//	}
-//
-//	return data;
-//}
-
-
 int main()
 {
 	// cl::Platform platforms;
 
-	//===========================================================
+	//============================================================
 	// Initialization of the GPU
 	//============================================================
 
@@ -71,8 +44,48 @@ int main()
 	cl_context_properties prop[4] = { CL_CONTEXT_PLATFORM, (cl_context_properties)platforms[platformId](), 0, 0 };
 	std::cout << "Using platform '" << platforms[platformId].getInfo<CL_PLATFORM_NAME>() << "' from '" << platforms[platformId].getInfo<CL_PLATFORM_VENDOR>() << "'" << std::endl;
 
-	/* Read a TGA file */
-	TGA Img1("CTC32.TGA");
+	// READ
+	// Read a TGA file
+	char * fileNameRd = "../images/utc16.tga";
+	TGA imgRead(fileNameRd);
 
+
+
+
+
+
+
+
+
+
+
+
+	// WRITE 
+	// Copy data from device buffer and write to new image file
+	TGA imgWrite;
+	imgWrite.mHeader		= imgRead.mHeader;
+	imgWrite.mPixelDataLen	= imgRead.mPixelDataLen;
+
+	// Update the ID
+	copy(imgRead.mID.begin(), imgRead.mID.end(), back_inserter(imgWrite.mID));
+
+	// Update the ColorMapSpec 
+	copy(imgRead.mColorMapSpec.begin(), imgRead.mColorMapSpec.end(), back_inserter(imgWrite.mColorMapSpec));
+
+	// Update the PixelData
+	//imgWrite.mPixelData.resize(imgWrite.mPixelDataLen);
+	// Copy from device to host
+	//TODO
+	copy(imgRead.mPixelData.begin(), imgRead.mPixelData.end(), back_inserter(imgWrite.mPixelData));
+
+	char* fileNameWr = "../images/test_utc16.tga";
+	if (imgWrite.write(fileNameWr))
+	{
+		fprintf(stderr, "Error: Failed to write the new image. \n");
+		throw "Error: Failed to write the new image. \n";
+	}
+
+	char * fileName2 = "../images/test_utc16.tga";
+	TGA img2(fileName2);
 }
 
