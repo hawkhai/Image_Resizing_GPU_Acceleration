@@ -147,12 +147,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\OpenCL.props" />
+    <None Include="halfsize_tga.cl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="halfsize_tga.cpp" />
     <ClCompile Include="tga_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="halfsize_tga.h" />
     <ClInclude Include="tga_helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

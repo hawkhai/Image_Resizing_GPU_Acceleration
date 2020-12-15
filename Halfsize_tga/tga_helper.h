@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
 // File : tga_helper.h
 //------------------------------------------------------------------------------
-// GLVU : Original work Copyright 1997 - 2002 
-//			The University of North Carolina at Chapel Hill
-//		  Modified work by Mohammed Muddasser 2020
+
+// Copyright 2020 
+// Author - Mohammed Muddasser
 //------------------------------------------------------------------------------
 // Permission to use, copy, modify, distribute and sell this software and its 
 // documentation for any purpose is hereby granted without fee, provided that 
@@ -12,30 +12,26 @@
 // Binaries may be compiled with this software without any royalties or 
 // restrictions. 
 //
-// The University of North Carolina at Chapel Hill makes no representations 
-// about the suitability of this software for any purpose. It is provided 
-// "as is" without express or implied warranty.
-
-//============================================================================
-// tga_helper.h : Targa image format module
-//============================================================================
 
 //============================================================================
 // Includes
 //============================================================================
 #include <stdint.h>
 #include <stdio.h>
-#include <assert.h>
-#include <memory.h>
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+// Deprecated warnings suppressed, since I'm working with OpenCL 1.X in my PC	
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#include <CL\cl.hpp>
 
 //============================================================================
 // Declarations and Macro Defintions
 //============================================================================
 
-#define TGA_DEBUG 1
+// TO BE CHNAGED AS PER USER NEEDS
+#define TGA_HELPER_DEBUG		0
 
 // Macro definitions for image types.
 #define TGA_NULL				0							// Null
@@ -95,11 +91,11 @@ struct TGA {
 
 	// By default all kept public
 	// Member Variables
-	tgaHeader				mHeader;
-	uint32_t				mPixelDataLen;
-	std::vector<uint8_t>	mID;
-	std::vector<uint8_t>	mColorMapSpec;
-	std::vector<uint8_t>	mPixelData;
+	tgaHeader				mHeader;						// Header of the image decoded
+	uint32_t				mPixelDataLen;					// Pixel data length
+	std::vector<uint8_t>	mID;							// ID 
+	std::vector<uint8_t>	mColorMapSpec;					// ColorMapSpec
+	std::vector<uint8_t>	mPixelData;						// Pixel Data
 
 	// Default Constructor
 	TGA() {

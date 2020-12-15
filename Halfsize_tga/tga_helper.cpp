@@ -1,7 +1,9 @@
 //------------------------------------------------------------------------------
 // File : tga_helper.cpp
 //------------------------------------------------------------------------------
-// Mohammed Muddasser work Copyright 2020
+
+// Copyright 2020 
+// Author - Mohammed Muddasser
 //------------------------------------------------------------------------------
 // Permission to use, copy, modify, distribute and sell this software and its 
 // documentation for any purpose is hereby granted without fee, provided that 
@@ -9,11 +11,6 @@
 // notice and this permission notice appear in supporting documentation. 
 // Binaries may be compiled with this software without any royalties or 
 // restrictions. 
-//
-//============================================================================
-// tga_helper.hpp : Targa image format module
-//============================================================================
-// Mohammed Muddasser, Feb 2020 
 //
 
 //============================================================================
@@ -29,24 +26,30 @@ char imgTypeStr[16][16] = { "NULL", "MAP", "RGB", "MONO", "4", "5", "6", "7", "8
 //------------------------------------------------------------------------------------------------
 // Read and parse an image file. Currently only supports mono, rgb 16, 24 and rgba32 tga formats.
 //
+// void TGA::read(const char *imgName)
 // Input Parameters :	const char *imgName - image to be read
-//						uint8_t* &data		- pixel data
-//						int &width			- total width (no of pixels)
-//						int &height			- total height (no of pixels)
-//						int &channels		- number of channels
 //								
 // Return Parameters:	None
 // 
 //-------------------------------------------------------------------------------------------------
 void TGA::read(const char *imgName)
 {
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stdout, "\n-------------------------------------------------------------\n");
-	fprintf(stdout, "In TGA::read fucntion, reading image %s.\n", imgName);
+	fprintf(stdout, "In TGA::read function, reading image %s.\n", imgName);
 #endif
 
 	// Read the image file.
 	std::ifstream inpImg(imgName, ios::in | ios::binary);
+
+	// If file open fails
+	if (inpImg.fail())
+	{
+		fprintf(stderr, "TGA: Failed to open file `%s'. Please check the file path\n", imgName);
+		throw ("TGA: Failed to open file `%s'.\n", imgName);
+	}
+
+	// If file already open throw exception
 	if(!inpImg.is_open())
 		throw ("TGA: Failed to open file `%s'.\n", imgName);
   
@@ -55,7 +58,7 @@ void TGA::read(const char *imgName)
 	uint32_t iSize = (uint32_t)inpImg.tellg();
 	inpImg.seekg(0, ios::beg);
 
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stderr, "Image size is %d bytes\n", iSize);
 #endif
 
@@ -84,7 +87,7 @@ void TGA::read(const char *imgName)
 		throw ("Error when reading header: only %d number of bytes could be read", inpImg.gcount());
 	}
 
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stdout, "imgIDLength is - %d\n", mHeader.imgIDLength);
 	fprintf(stdout, "imgColorMapType is - %d\n", mHeader.imgColorMapType);
 	fprintf(stdout, "imgType is - %d\n", mHeader.imgType);
@@ -100,18 +103,19 @@ void TGA::read(const char *imgName)
 
 	fprintf(stdout, "TGA Image type %s bpp = %d\n", imgTypeStr[mHeader.imgType], int(mHeader.imgPixelSize));
 
-	fprintf(stdout, "Header is: \n");
+	/*fprintf(stdout, "Header is: \n");
 	for (int i = 0; i < sizeof(tmpHeader); i++)
 		fprintf(stdout, "%02X \t", tmpHeader[i]);
 	fprintf(stdout, "\n");
+	*/
 
 #endif
 
 	// Error for unsupported formats (Only Mono, RGB 16, 24 and RGBA 32 are supported)
-	if ((mHeader.imgType != TGA_MONO) && (mHeader.imgType != TGA_RGB))
+	if ((mHeader.imgType != TGA_MONO) && (mHeader.imgType != TGA_RGB) || (mHeader.imgType == TGA_RGB && mHeader.imgPixelSize == 16))
 	{
 		inpImg.close();
-		fprintf (stderr, "Error unsupported format %s. Currrenty only Uncompressed Monochrome B&W, RGB 16, 24 and RGBA 32 are supported ", imgTypeStr[mHeader.imgType]);
+		fprintf (stderr, "Error unsupported format %s and pixelsize %d. Currrenty only Uncompressed Monochrome B&W, RGB 24 and RGBA 32 are supported ", imgTypeStr[mHeader.imgType], mHeader.imgPixelSize);
 		throw ("Error unsupported format %s. Currrenty only Uncompressed Monochrome B&W, RGB 16, 24 and RGBA 32 are supported ", imgTypeStr[mHeader.imgType]);
 	}
 
@@ -119,11 +123,13 @@ void TGA::read(const char *imgName)
 	mID.resize(mHeader.imgIDLength);
 	inpImg.read((char *)mID.data(), mHeader.imgIDLength);
 
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
+	
 	fprintf(stdout, "ID is: \n");
 	for (int i = 0; i < mID.size(); i++)
 		fprintf(stdout, "%02X \t", mID[i]);
 	fprintf(stdout, "\n");
+	
 #endif
 
 	// Resizing error handling
@@ -141,14 +147,14 @@ void TGA::read(const char *imgName)
 	mColorMapSpec.resize(mColorMapSpecSize);
 	inpImg.read((char *)mColorMapSpec.data(), mColorMapSpecSize);
 
-#if TGA_DEBUG
-	if (mColorMapSpec.size() > 0)
+#if TGA_HELPER_DEBUG
+	/*if (mColorMapSpec.size() > 0)
 	{
 		fprintf(stdout, "ColorMapSpecField is: \n");
 		for (int i = 0; i < mColorMapSpec.size(); i++)
 			fprintf(stdout, "%02X \t", mColorMapSpec[i]);
 		fprintf(stdout, "\n");
-	}
+	}*/
 #endif
 
 	// Resizing error handling
@@ -176,12 +182,13 @@ void TGA::read(const char *imgName)
 	}
 	inpImg.read((char *)mPixelData.data(), mPixelDataLen);
 
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stdout, "Data size is %d bytes\n", mPixelDataLen);
-	/*fprintf(stdout, "First 50 bytes of data is: \n");
-	for (int i = 0; i < 50; i++)
+	fprintf(stdout, "First 130 bytes of data is: \n");
+	for (int i = 0; i < 132; i++)
 		fprintf(stdout, "%02X \t", mPixelData[i]);
-	fprintf(stdout, "\n");*/
+	fprintf(stdout, "\n");
+	
 	fprintf(stdout, "-------------------------------------------------------------\n");
 #endif
 
@@ -204,6 +211,7 @@ void TGA::read(const char *imgName)
 //------------------------------------------------------------------------------------------------
 // Write the image oblject to a file. Currently only supports mono, rgb 16, 24 and rgba32 tga formats.
 //
+// bool TGA::write(const char *imgName)
 // Input Parameters :	const char *imgName - image to be read
 //								
 // Return Parameters:	Return 1 for error
@@ -214,9 +222,9 @@ void TGA::read(const char *imgName)
 bool TGA::write(const char *imgName)
 {
 
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stdout, "\n-------------------------------------------------------------\n");
-	fprintf(stdout, "In TGA::write fucntion, creating image %s.\n", imgName);
+	fprintf(stdout, "In TGA::write function, creating image %s.\n", imgName);
 #endif
 
 	// Error for unsupported formats (Only Mono, RGB 16, 24 and RGBA 32 are supported)
@@ -226,11 +234,11 @@ bool TGA::write(const char *imgName)
 		return 1;
 	}
 
-	// Performing only basic checks
+	// Performing basic checks on the validity of the header.
 	if (mHeader.imgHeight == 0 || mHeader.imgWidth == 0 || mPixelDataLen == 0 || mID.size() == 0 || mPixelData.size() == 0 ||
 		mHeader.imgIDLength != mID.size() || (mHeader.imgPixelSize != 8 && mHeader.imgPixelSize != 16 && mHeader.imgPixelSize != 24 && mHeader.imgPixelSize != 32))
 	{
-		fprintf(stderr, "Error cannot write image, incomplete or incorrect fields");
+		fprintf(stderr, "	\n");
 
 		fprintf(stdout, "imgIDLength is - %d\n", mHeader.imgIDLength);
 		fprintf(stdout, "imgColorMapType is - %d\n", mHeader.imgColorMapType);
@@ -244,6 +252,9 @@ bool TGA::write(const char *imgName)
 		fprintf(stdout, "imgHeight is - %d\n", mHeader.imgHeight);
 		fprintf(stdout, "imgPixelSize is - %d\n", mHeader.imgPixelSize);
 		fprintf(stdout, "imgDesc is - %d\n", mHeader.imgDesc);
+		fprintf(stdout, "mID.size() is - %d\n", (uint32_t)mID.size());
+		fprintf(stdout, "mPixelDataLen is - %d\n", mPixelDataLen);
+		fprintf(stdout, "mPixelData.size() is - %d\n", (uint32_t)mPixelData.size());
 
 		return 1;
 	}
@@ -256,7 +267,7 @@ bool TGA::write(const char *imgName)
 		return 1;
 	}
 
-	// temmporary variable and array
+	// temporary count variable
 	size_t tmpCount = 0;
 
 	//Update the header with error handling
@@ -310,7 +321,7 @@ bool TGA::write(const char *imgName)
 	}
 
 	// Update the ID
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stdout, "Size of ID is : %d bytes\n", (uint32_t)mID.size());
 #endif
 
@@ -322,7 +333,7 @@ bool TGA::write(const char *imgName)
 	}
 
 	// Update the ColorMapSpec
-#if TGA_DEBUG
+#if TGA_HELPER_DEBUG
 	fprintf(stdout, "Size of mColorMapSpec is : %d bytes\n", (uint32_t)mColorMapSpec.size());
 #endif
 
@@ -336,17 +347,20 @@ bool TGA::write(const char *imgName)
 		}
 	}
 
-	// Update the Data
-#if TGA_DEBUG
-	fprintf(stdout, "Actual data to be written is %d bytes\n", mPixelDataLen);
+	
+#if TGA_HELPER_DEBUG
+	//fprintf(stdout, "Actual data to be written is %d bytes\n", mPixelDataLen);
 	fprintf(stdout, "Data size being written is %d bytes\n", (uint32_t)mPixelData.size());
 	/*fprintf(stdout, "First 50 bytes of data is: \n");
 	for (int i = 0; i < 50; i++)
 		fprintf(stdout, "%02X \t", mPixelData[i]);
 	fprintf(stdout, "\n");*/
 	fprintf(stdout, "-------------------------------------------------------------\n");
+	fprintf(stdout, "\n");
+	fprintf(stdout, "-------------------------------------------------------------\n");
 #endif
 
+	// Update the Data intothe file
 	tmpCount = fwrite(mPixelData.data(), sizeof mPixelData[0], mPixelData.size(), file);
 	if (tmpCount < mPixelData.size())
 	{
