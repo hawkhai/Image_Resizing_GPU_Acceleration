@@ -1,6 +1,6 @@
 # GPU based acceleration for TGA image resizing.
 
-## Author: Mohammed Muddasser
+### Author: Mohammed Muddasser
 
 ## Objective
 The submitted is an OpenCL tool which loads a .tga image file and resizes it to half of its original width and height, and then saves it back to disk, as a new .tga file. A zipped Visual Studio project is delivered.
@@ -73,9 +73,13 @@ A zipped Visual Studio solution directory is delivered, which can be unzipped, t
 </p>
 
 • By default, the necessary/ desired output is available on the console window. The MACRO TGA_DEBUG can be enabled in the halfsize_tga.h, so more detailed debug info may be printed onto the console. (Refer pic below).
+
   TGA_PLATFORM_DEFAULT Should to set to 0, if to use TGA_PLATFORM_NAME platform, else the first platform with the device will be used for execution.
+  
   Similarly, TGA_PLATFORM_NAME and TGA_DEVICE_NUMBER need to be modified as per user needs.
+  
   In line 83 of halfsize_tga.cpp, the device is set to CL_DEVICE_TYPE_GPU ,which can be changed as per user needs.
+  
 
 ```C++
   //============================================================================
@@ -108,5 +112,6 @@ A zipped Visual Studio solution directory is delivered, which can be unzipped, t
 </p>
   
 • The tested images are not shared along with the project, due to copyright concerns.
+
 • The files are annotated with the necessary copyright information, such that it may be used and distributed freely as per the guidelines.
 
