@@ -35,5 +35,8 @@
     <ClInclude Include="halfsize_tga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="halfsize_tga.cl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

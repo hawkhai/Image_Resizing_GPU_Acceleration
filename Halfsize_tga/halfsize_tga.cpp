@@ -42,8 +42,8 @@ std::vector<cl::Platform> platforms;
 int main(int argc, char *argv[])
 {
 	// Read the filenames passed from command line
-	char * InpFile = argv[1];
-	char * OpFile  = argv[2];
+	const char * InpFile = "E:\\kSource\\irrlicht_android\\skylicht-engine\\Assets\\Sponza\\Textures\\lion.tga";
+	const char * OpFile  = "E:\\kpdfium\\Image_Resizing_GPU_Acceleration\\test.tga";
 
 	fprintf(stdout, "\n-------------------------------------------------------------\n");
 	fprintf(stdout, "                     Running Halfsize_TGA						\n");
@@ -164,7 +164,9 @@ int main(int argc, char *argv[])
 	// Create iftsream object and sources to load the respective file
 	std::ifstream halfsize_tga("halfsize_tga.cl");
 	std::string src(std::istreambuf_iterator<char>(halfsize_tga), (std::istreambuf_iterator<char>()));
-	cl::Program::Sources sources(1, std::make_pair(src.c_str(), src.length() + 1));
+    std::vector<string> temp;
+    temp.push_back(src);
+	cl::Program::Sources sources(temp);
 
 	// Load the source code
 	cl::Program program(context, sources);
@@ -212,12 +214,12 @@ int main(int argc, char *argv[])
 	fprintf(stdout, "Original size : %dX%d \n", imgRead.mHeader.imgWidth, imgRead.mHeader.imgHeight);
 	
 	// Number of channels
-	uint8_t noChannel = imgRead.mHeader.imgPixelSize / 8;				// can be 1, 3 or 4
-	if (noChannel == 2) noChannel = 3;									// 16-bit is 3 channel with R5G6B5.
+	uint8_t numChannel = imgRead.mHeader.imgPixelSize / 8;				// can be 1, 3 or 4
+	if (numChannel == 2) numChannel = 3;									// 16-bit is 3 channel with R5G6B5.
 	
-	if(noChannel > 4 || noChannel < 1)
+	if(numChannel > 4 || numChannel < 1)
 	{
-		fprintf(stderr, "Error: Invalid number of channels i.e invalid pixel size field in header. %d.\n", noChannel);
+		fprintf(stderr, "Error: Invalid number of channels i.e invalid pixel size field in header. %d.\n", numChannel);
 		return -1;
 	}
 
@@ -292,22 +294,27 @@ int main(int argc, char *argv[])
 	event_write2.wait();
 
 	// New kernel object for computation
-	cl::Kernel halfSizeTGAKernel(program, "halfSizeTGAKernel");
+	cl::Kernel gpuip_scale(program, "gpuip_scale");
 
 	// Kernel1 arguments
-	halfSizeTGAKernel.setArg<cl_char>(0, (cl_char)imgRead.mHeader.imgPixelSize);
-	halfSizeTGAKernel.setArg<cl_char>(1, (cl_char)noChannel);
-	halfSizeTGAKernel.setArg<cl::Buffer>(2, imgInBuffer);
-	halfSizeTGAKernel.setArg<cl::Buffer>(3, imgOpBuffer);
+	gpuip_scale.setArg<cl_char>(0, (cl_char)imgRead.mHeader.imgPixelSize);
+	gpuip_scale.setArg<cl_char>(1, (cl_char)numChannel);
+	gpuip_scale.setArg<cl::Buffer>(2, imgInBuffer);
+	gpuip_scale.setArg<cl::Buffer>(3, imgOpBuffer);
 
 	// Parameters to compute total buffer size to be allocated to V, C and R buffers
 	// Depends on image size. Needs to be smaller then the number of workitmes.
 	size_t wgSize = 16;                                       // Work Group size
 
 	// Launch the kernel1
-	uint32_t errKernel = que.enqueueNDRangeKernel(	halfSizeTGAKernel, 0, 
-													cl::NDRange((size_t)imgWrite.mHeader.imgWidth, (size_t)imgWrite.mHeader.imgHeight), 
-													cl::NDRange(wgSize, wgSize), NULL, &event_kernel1);
+      //  const NDRange& offset,
+      //  const NDRange& global,
+      //  const NDRange& local = NullRange,
+	uint32_t errKernel = que.enqueueNDRangeKernel(	
+        gpuip_scale, 0, 
+        cl::NDRange((size_t)imgWrite.mHeader.imgWidth, (size_t)imgWrite.mHeader.imgHeight), 
+        cl::NDRange(wgSize, wgSize), NULL, &event_kernel1);
+
 	if (errKernel != CL_SUCCESS)
 	{
 		fprintf(stderr, "Error: Kernel run failed with error %d \n", errKernel);

@@ -6,7 +6,7 @@
 
 // Deprecated warnings suppressed, since currently working with OpenCL 1.X in my PC, with OpenCL 2.0 bindings	
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#include <CL\cl.hpp>
+#include <CL\opencl.hpp>
 
 //============================================================================
 // Declarations and Macro Defintions

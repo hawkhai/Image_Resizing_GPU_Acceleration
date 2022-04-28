@@ -235,7 +235,7 @@ bool TGA::write(const char *imgName)
 	}
 
 	// Performing basic checks on the validity of the header.
-	if (mHeader.imgHeight == 0 || mHeader.imgWidth == 0 || mPixelDataLen == 0 || mID.size() == 0 || mPixelData.size() == 0 ||
+	if (mHeader.imgHeight == 0 || mHeader.imgWidth == 0 || mPixelDataLen == 0 || mPixelData.size() == 0 ||
 		mHeader.imgIDLength != mID.size() || (mHeader.imgPixelSize != 8 && mHeader.imgPixelSize != 16 && mHeader.imgPixelSize != 24 && mHeader.imgPixelSize != 32))
 	{
 		fprintf(stderr, "	\n");

@@ -24,14 +24,14 @@
 
 // Deprecated warnings suppressed, since I'm working with OpenCL 1.X in my PC	
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#include <CL\cl.hpp>
+#include <CL\opencl.hpp>
 
 //============================================================================
 // Declarations and Macro Defintions
 //============================================================================
 
 // TO BE CHNAGED AS PER USER NEEDS
-#define TGA_HELPER_DEBUG		0
+#define TGA_HELPER_DEBUG		1
 
 // Macro definitions for image types.
 #define TGA_NULL				0							// Null
